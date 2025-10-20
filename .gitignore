@@ -4,3 +4,89 @@ bin/
 obj/
 .vs/
 node_modules/
+
+# Terraform files
+.terraform/
+.terraform/**
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+.terraformrc
+terraform.rc
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Local development files
+.env
+.env.*
+.vscode/
+.idea/
+
+# Python files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Node.js files
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.npm
+.yarn-integrity
+package-lock.json
+yarn.lock
+
+# .NET files
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+[Bb]in/
+[Oo]bj/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+.docker/
+.dockerignore
+
+# Database
+*.sqlite
+*.db
+
+# OS specific files
+.DS_Store
+Thumbs.db

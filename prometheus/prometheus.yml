@@ -1,0 +1,38 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Scrape Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Scrape Node Exporter for host metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # Scrape PostgreSQL metrics
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  # Scrape Docker metrics (if you want container metrics)
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['172.17.0.1:9323']  # Docker host IP and metrics port
+
+  # Vote application
+  - job_name: 'vote'
+    static_configs:
+      - targets: ['vote:80']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Result application
+  - job_name: 'result'
+    static_configs:
+      - targets: ['result:4000']
+    metrics_path: '/metrics'
+    scrape_interval: 5s

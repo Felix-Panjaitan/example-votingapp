@@ -1,65 +1,71 @@
-# Example Voting App
+# Voting App
 
-A simple distributed application running across multiple Docker containers.
+A simple distributed application that allows users to vote between two options and view real-time results.
 
-## Getting started
+## Project Overview
 
-Download [Docker Desktop](https://www.docker.com/products/docker-desktop) for Mac or Windows. [Docker Compose](https://docs.docker.com/compose) will be automatically installed. On Linux, make sure you have the latest version of [Compose](https://docs.docker.com/compose/install/).
+This application consists of:
+- A Python web app for voting
+- A Redis cache to collect votes
+- A .NET worker to process votes
+- A PostgreSQL database for storage
+- A Node.js results app to display voting results
+- Monitoring with Prometheus and Grafana
 
-This solution uses Python, Node.js, .NET, with Redis for messaging and Postgres for storage.
+## Setup Instructions
 
-Run in this directory to build and run the app:
+### Local Development with Docker
 
-```shell
+1. Clone this repository
+2. Run the application:
+```
 docker compose up
 ```
+3. Access the applications:
+   - Voting interface: http://localhost:4000
+   - Results dashboard: http://localhost:4001
+   - Prometheus: http://localhost:9090
+   - Grafana: http://localhost:3000 (username: admin, password: admin)
 
-The `vote` app will be running at [http://localhost:8080](http://localhost:8080), and the `results` will be at [http://localhost:8081](http://localhost:8081).
+### Azure Deployment
 
-Alternately, if you want to run it on a [Docker Swarm](https://docs.docker.com/engine/swarm/), first make sure you have a swarm. If you don't, run:
-
-```shell
-docker swarm init
+1. Ensure you have the Azure CLI and Terraform installed
+2. Initialize Terraform:
 ```
-
-Once you have your swarm, in this directory run:
-
-```shell
-docker stack deploy --compose-file docker-stack.yml vote
+terraform init
 ```
-
-## Run the app in Kubernetes
-
-The folder k8s-specifications contains the YAML specifications of the Voting App's services.
-
-Run the following command to create the deployments and services. Note it will create these resources in your current namespace (`default` if you haven't changed it.)
-
-```shell
+3. Deploy the infrastructure:
+```
+terraform apply
+```
+4. Connect to the AKS cluster:
+```
+az aks get-credentials --resource-group voting-app-resources --name voting-app-aks
+```
+5. Deploy the application to AKS:
+```
 kubectl create -f k8s-specifications/
 ```
 
-The `vote` web app is then available on port 31000 on each host of the cluster, the `result` web app is available on port 31001.
+## Design Decisions
 
-To remove them, run:
+- **Microservices Architecture**: Each component runs in its own container for better scalability and maintainability
+- **Redis for Vote Collection**: Provides fast in-memory storage for incoming votes
+- **PostgreSQL for Persistent Storage**: Reliable database for storing the final voting data
+- **Basic Monitoring Setup**: Prometheus and Grafana for tracking system performance
+- **Cost-Efficient Azure Resources**: B-series VMs and Basic tiers to minimize cloud expenses
+- **Simple User Interface**: Clean design focused on the voting experience
 
-```shell
-kubectl delete -f k8s-specifications/
-```
+## Potential Improvements
 
-## Architecture
+- Add authentication for users
+- Implement CI/CD pipeline for automated deployments
+- Enhance the monitoring with custom dashboards and alerts
+- Add more voting options beyond the binary choice
+- Implement scaling policies for handling traffic spikes
+- Create a backup and disaster recovery strategy
+- Add application security scanning
 
-![Architecture diagram](architecture.excalidraw.png)
+## License
 
-* A front-end web app in [Python](/vote) which lets you vote between two options
-* A [Redis](https://hub.docker.com/_/redis/) which collects new votes
-* A [.NET](/worker/) worker which consumes votes and stores them in…
-* A [Postgres](https://hub.docker.com/_/postgres/) database backed by a Docker volume
-* A [Node.js](/result) web app which shows the results of the voting in real time
-
-## Notes
-
-The voting application only accepts one vote per client browser. It does not register additional votes if a vote has already been submitted from a client.
-
-This isn't an example of a properly architected perfectly designed distributed app... it's just a simple
-example of the various types of pieces and languages you might see (queues, persistent data, etc), and how to
-deal with them in Docker at a basic level.
+Apache License 2.0

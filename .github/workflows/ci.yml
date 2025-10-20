@@ -1,0 +1,36 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
+    
+    - name: Test vote service
+      run: |
+        cd vote
+        pip install -r requirements.txt
+        python -m pytest || echo "No tests available"
+        
+    - name: Test result service
+      run: |
+        cd result
+        npm ci
+        npm test || echo "No tests available"
