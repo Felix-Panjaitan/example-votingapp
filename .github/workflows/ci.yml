@@ -34,3 +34,18 @@ jobs:
         cd result
         npm ci
         npm test || echo "No tests available"
+  
+  create-pr:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Create Pull Request to main
+        uses: felix-panjaitan/create-pull-request
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "feat: Auto PR for ${{ github.ref_name }}"
+          body: "Auto-generated PR for branch `${{ github.ref_name }}`. Tests passed."
+          base: main
+          branch: ${{ github.ref_name }}
+          labels: auto-pr
