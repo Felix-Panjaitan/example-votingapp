@@ -42,27 +42,27 @@ jobs:
         npm test || echo "No tests available"
   
   
-  create-pull-request:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+  # create-pull-request:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v4
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Create Pull Request
+  #       uses: peter-evans/create-pull-request@v6
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
           
-          title: 'Auto PR: ${{ github.ref_name }}'
+  #         title: 'Auto PR: ${{ github.ref_name }}'
           
-          base: 'main'
+  #         base: 'main'
           
-          branch: ${{ github.ref_name }}
+  #         branch: ${{ github.ref_name }}
           
-          body: |
-            This is an auto-generated PR for branch `${{ github.ref_name }}`.
+  #         body: |
+  #           This is an auto-generated PR for branch `${{ github.ref_name }}`.
             
-            - Please review the changes.
-            - Triggered by @${{ github.actor }}.
+  #           - Please review the changes.
+  #           - Triggered by @${{ github.actor }}.
             
-          assignees: ${{ github.actor }}
+  #         assignees: ${{ github.actor }}
