@@ -41,7 +41,7 @@ jobs:
     if: github.event_name == 'push'
     steps:
       - name: Create Pull Request to main
-        uses: felix-panjaitan/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: "feat: Auto PR for ${{ github.ref_name }}"
