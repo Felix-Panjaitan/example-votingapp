@@ -56,8 +56,8 @@ jobs:
           branch: ${{ github.ref_name }}
           labels: auto-pr, auto-merge
 
-      # - name: Enable Auto-Merge
-      #   if: steps.cpr.outputs.pull-request-number
-      #   run: gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --auto --merge
-      #   env:
-      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Enable Auto-Merge
+        if: steps.cpr.outputs.pull-request-number
+        run: gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --auto --merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
