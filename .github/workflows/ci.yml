@@ -1,5 +1,9 @@
 name: CI Pipeline
 
+permissions:
+  contents: write
+  pull-requests: write
+
 on:
   push:
     branches: [ feature/99-devops-setup ]
@@ -42,8 +46,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Create Pull Request to main
+        # Give the step an ID to reference its output
+        id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
