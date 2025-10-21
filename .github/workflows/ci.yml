@@ -8,9 +8,6 @@ on:
   push:
     branches-ignore:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   test:
@@ -44,18 +41,23 @@ jobs:
   create-pr:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
-      - name: Create Pull Request to main
-        # Give the step an ID to reference its output
+
+      - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: "feat: Auto PR for ${{ github.ref_name }}"
-          body: "Auto-generated PR for branch `${{ github.ref_name }}`. Tests passed."
+          title: "feat: Auto-merge ${{ github.ref_name }} into main"
+          body: "Auto-generated PR for branch `${{ github.ref_name }}`. Merging automatically."
           base: main
           branch: ${{ github.ref_name }}
-          labels: auto-pr
+          labels: auto-pr, auto-merge
+
+      # - name: Enable Auto-Merge
+      #   if: steps.cpr.outputs.pull-request-number
+      #   run: gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --auto --merge
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
