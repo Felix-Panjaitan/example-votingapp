@@ -6,7 +6,7 @@ permissions:
 
 on:
   push:
-    branches: [ main ]
+    branches: [ feature/99-devops-setup ]
   pull_request:
     branches: [ feature/99-devops-setup ]
 
