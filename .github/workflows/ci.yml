@@ -40,6 +40,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Create Pull Request to main
         uses: peter-evans/create-pull-request@v6
         with:
