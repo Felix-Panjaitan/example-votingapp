@@ -6,9 +6,11 @@ permissions:
 
 on:
   push:
-    branches: [ feature/99-devops-setup ]
+    branches-ignore:
+      - main
   pull_request:
-    branches: [ feature/99-devops-setup ]
+    branches:
+      - main
 
 jobs:
   test:
