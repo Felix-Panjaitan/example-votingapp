@@ -6,8 +6,11 @@ permissions:
 
 on:
   push:
-    branches-ignore:
-      - main
+    branches:
+      - 'feature/**'
+      - 'fix/**'
+      - '!main'
+      - '!develop'
 
 jobs:
   test:
@@ -38,26 +41,28 @@ jobs:
         npm ci
         npm test || echo "No tests available"
   
-  create-pr:
-    needs: test
+  
+  create-pull-request:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Check out code
         uses: actions/checkout@v4
 
       - name: Create Pull Request
-        id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: "feat: Auto-merge ${{ github.ref_name }} into main"
-          body: "Auto-generated PR for branch `${{ github.ref_name }}`. Merging automatically."
-          base: main
+          
+          title: 'Auto PR: ${{ github.ref_name }}'
+          
+          base: 'main'
+          
           branch: ${{ github.ref_name }}
-          labels: auto-pr, auto-merge
-
-      - name: Enable Auto-Merge
-        if: steps.cpr.outputs.pull-request-number
-        run: gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --auto --merge
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+          body: |
+            This is an auto-generated PR for branch `${{ github.ref_name }}`.
+            
+            - Please review the changes.
+            - Triggered by @${{ github.actor }}.
+            
+          assignees: ${{ github.actor }}
