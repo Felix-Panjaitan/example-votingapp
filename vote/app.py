@@ -15,9 +15,17 @@ hostname = socket.gethostname()
 app = Flask(__name__)
 metrics = PrometheusMetrics(app)
 
-gunicorn_error_logger = logging.getLogger("gunicorn.error")
-app.logger.handlers.extend(gunicorn_error_logger.handlers)
-app.logger.setLevel(logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='{"timestamp": "%(asctime)s", "level": "%(levelname)s", "service": "vote", "message": "%(message)s", "hostname": "'
+    + hostname
+    + '"}',
+    datefmt="%Y-%m-%dT%H:%M:%S",
+)
+
+# gunicorn_error_logger = logging.getLogger("gunicorn.error")
+# app.logger.handlers.extend(gunicorn_error_logger.handlers)
+# app.logger.setLevel(logging.INFO)
 
 # vote_counter = None
 
@@ -30,7 +38,16 @@ vote_counter = metrics.counter(
 
 def get_redis():
     if not hasattr(g, "redis"):
-        g.redis = Redis(host="redis", db=0, socket_timeout=5)
+        try:
+            g.redis = Redis(host="redis", db=0, socket_timeout=5)
+            app.logger.info(
+                f'{{"action": "redis_connection", "status": "success", "host": "redis"}}'
+            )
+        except Exception as e:
+            app.logger.error(
+                f'{{"action": "redis_connection", "status": "error", "error": "{str(e)}"}}'
+            )
+            raise
     return g.redis
 
 
@@ -40,21 +57,33 @@ def hello():
     voter_id = request.cookies.get("voter_id")
     if not voter_id:
         voter_id = hex(random.getrandbits(64))[2:-1]
+        app.logger.info(f'{{"action": "new_voter", "voter_id": "{voter_id}"}}')
 
     vote = None
 
     if request.method == "POST":
-        redis = get_redis()
-        vote = request.form["vote"]
-        app.logger.info("Received vote for %s", vote)
-        data = json.dumps({"voter_id": voter_id, "vote": vote})
-        # data = json.dumps(
-        #     {"voter_id": request.cookies.get("voter_id"), "vote": request.form["vote"]}
-        # )
-        redis.rpush("votes", data)
-        # app.logger.info("Recorded vote for %s", request.form["vote"])
-        # return redirect(url_for("index"))
-        # vote_counter.inc()
+        try:
+            redis = get_redis()
+            vote = request.form["vote"]
+            # app.logger.info("Received vote for %s", vote)
+            app.logger.info(
+                f'{{"action": "vote_received", "vote": "{vote}", "voter_id": "{voter_id}"}}'
+            )
+            data = json.dumps({"voter_id": voter_id, "vote": vote})
+            # data = json.dumps(
+            #     {"voter_id": request.cookies.get("voter_id"), "vote": request.form["vote"]}
+            # )
+            redis.rpush("votes", data)
+            app.logger.info(
+                f'{{"action": "vote_stored", "vote": "{vote}", "voter_id": "{voter_id}", "status": "success"}}'
+            )
+            # app.logger.info("Recorded vote for %s", request.form["vote"])
+            # return redirect(url_for("index"))
+            # vote_counter.inc()
+        except Exception as e:
+            app.logger.error(
+                f'{{"action": "vote_processing", "status": "error", "error": "{str(e)}", "voter_id": "{voter_id}"}}'
+            )
 
     resp = make_response(
         render_template(
