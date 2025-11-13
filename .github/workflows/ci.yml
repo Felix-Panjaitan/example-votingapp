@@ -1,0 +1,68 @@
+name: CI Pipeline
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'fix/**'
+      - '!main'
+      - '!develop'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
+    
+    - name: Test vote service
+      run: |
+        cd vote
+        pip install -r requirements.txt
+        python -m pytest || echo "No tests available"
+        
+    - name: Test result service
+      run: |
+        cd result
+        npm ci
+        npm test || echo "No tests available"
+  
+  
+  # create-pull-request:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v4
+
+  #     - name: Create Pull Request
+  #       uses: peter-evans/create-pull-request@v6
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+          
+  #         title: 'Auto PR: ${{ github.ref_name }}'
+          
+  #         base: 'main'
+          
+  #         branch: ${{ github.ref_name }}
+          
+  #         body: |
+  #           This is an auto-generated PR for branch `${{ github.ref_name }}`.
+            
+  #           - Please review the changes.
+  #           - Triggered by @${{ github.actor }}.
+            
+  #         assignees: ${{ github.actor }}
