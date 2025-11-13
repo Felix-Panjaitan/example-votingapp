@@ -14,6 +14,11 @@ services:
       - back-tier
     depends_on:
       - redis
+    # logging:
+    #   driver: loki
+    #   options:
+    #     loki-url: "http://localhost:3100/loki/api/v1/push"
+    #     loki-external-labels: service=vote,container=votingapp-vote
 
   result:
     build: ./result
@@ -28,6 +33,11 @@ services:
       - back-tier
     depends_on:
       - db
+    # logging:
+    #   driver: loki
+    #   options:
+    #     loki-url: "http://localhost:3100/loki/api/v1/push"
+    #     loki-external-labels: service=result,container=votingapp-result
 
   worker:
     build: ./worker
@@ -40,6 +50,11 @@ services:
     depends_on:
       - redis
       - db
+    # logging:
+    #   driver: loki
+    #   options:
+    #     loki-url: "http://localhost:3100/loki/api/v1/push"
+    #     loki-external-labels: service=worker,container=votingapp-worker
 
   redis:
     image: redis:alpine
@@ -49,6 +64,11 @@ services:
       - "logging=promtail"
     networks:
       - back-tier
+    # logging:
+    #   driver: loki
+    #   options:
+    #     loki-url: "http://localhost:3100/loki/api/v1/push"
+    #     loki-external-labels: service=redis,container=votingapp-redis
 
   db:
     image: postgres:15-alpine
@@ -63,6 +83,11 @@ services:
       - db-data:/var/lib/postgresql/data
     networks:
       - back-tier
+    # logging:
+    #   driver: loki
+    #   options:
+    #     loki-url: "http://localhost:3100/loki/api/v1/push"
+    #     loki-external-labels: service=db,container=votingapp-db
   
   prometheus:
     image: prom/prometheus:latest
@@ -127,7 +152,6 @@ services:
       - back-tier
     restart: always
 
-  # Promtail for log collection
   promtail:
     image: grafana/promtail:2.9.0
     container_name: votingapp-promtail
@@ -143,22 +167,23 @@ services:
       - loki
     restart: always
 
-  # Node exporter for host metrics
-  node-exporter:
-    image: prom/node-exporter:latest
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
-    ports:
-      - "9100:9100"
-    networks:
-      - back-tier
-    restart: always
+
+  # # Node exporter for host metrics
+  # node-exporter:
+  #   image: prom/node-exporter:latest
+  #   volumes:
+  #     - /proc:/host/proc:ro
+  #     - /sys:/host/sys:ro
+  #     - /:/rootfs:ro
+  #   command:
+  #     - '--path.procfs=/host/proc'
+  #     - '--path.sysfs=/host/sys'
+  #     - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
+  #   ports:
+  #     - "9100:9100"
+  #   networks:
+  #     - back-tier
+  #   restart: always
 
   # Postgres exporter for database metrics
   postgres-exporter:

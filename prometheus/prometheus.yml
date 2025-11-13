@@ -17,7 +17,7 @@ scrape_configs:
 
   - job_name: 'vote-service'
     static_configs:
-      - targets: ['vote:80']
+      - targets: ['votingapp-vote:80']
     metrics_path: '/metrics'
     scrape_interval: 5s
 
